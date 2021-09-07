@@ -18,9 +18,13 @@ class ViewController: UIViewController {
     
     var musicList: [music] = []
     var audioPlayer = AVAudioPlayer()
+    var musicIndex = 0
+    var firstTimeLogin = true // to make sure the first song only start from beginning of the song, then after that user will pause and play
+    
     @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var musicTableView: UITableView!
     
+    @IBOutlet weak var playPauseButton: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
         someUIchores()
@@ -28,8 +32,22 @@ class ViewController: UIViewController {
         
         musicTableView.register(MusicTableViewCell.nib(), forCellReuseIdentifier: MusicTableViewCell.identifier)
         
+        setCurrentSong()
         musicTableView.dataSource = self
         musicTableView.delegate = self
+        
+        let defaults = UserDefaults.standard
+        if let savedMusicIndex: Int = defaults.integer(forKey: "musicIndex"){
+            musicIndex = savedMusicIndex
+            setCurrentSong()
+            let audioUrl = getAudioUrl(musicList[musicIndex])
+
+            do{
+                audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
+            } catch{
+                print(error)
+            }
+        }
     }
     
     func createMusicList() -> [music]{
@@ -46,7 +64,6 @@ class ViewController: UIViewController {
         return tempMusicList
     }
     
-    
     func someUIchores(){
         backgroundView.layer.shadowColor = UIColor.black.withAlphaComponent(0.2).cgColor
         backgroundView.layer.shadowOffset = CGSize(width: 0, height: -3)
@@ -59,19 +76,71 @@ class ViewController: UIViewController {
         
         return URL(fileURLWithPath: url!)
     }
+    
+    
+    @IBAction func playPauseButtonPressed(_ sender: UIButton) {
+        if playPauseButton.currentImage!.isEqual(UIImage(named: "play")){
+            playPauseButton.setImage(UIImage(named: "pause"), for: .normal)
+            if firstTimeLogin {
+                playSong()
+                
+            }
+            else{
+                audioPlayer.play()
+            }
+            
+        }
+        else{
+            playPauseButton.setImage(UIImage(named: "play"), for: .normal)
+            audioPlayer.pause()
+        }
+    }
+    
+    @IBAction func nextSongButtonPressed(_ sender: UIButton) {
+        musicIndex = musicIndex == musicList.count-1  ? 0 : musicIndex + 1
+        playSong()
+    }
+    
+    
+    @IBAction func previousSongPressed(_ sender: UIButton) {
+        musicIndex = musicIndex == 0 ? musicList.count-1 : musicIndex - 1
+        playSong()
+    }
+    
+    func playSong(){
+        firstTimeLogin = false
+        let audioUrl = getAudioUrl(musicList[musicIndex])
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
+            playPauseButton.setImage(UIImage(named: "pause"), for: .normal)
+            setCurrentSong()
+            audioPlayer.play()
+        }
+        catch{
+            print(error)
+        }
+    }
+    
+    @IBOutlet weak var currentSongAuthor: UILabel!
+    @IBOutlet weak var currentSongName: UILabel!
+    @IBOutlet weak var currentSongImage: UIImageView!
+    
+    func setCurrentSong(){
+        let music = musicList[musicIndex]
+        
+        currentSongName.text = music.name
+        currentSongAuthor.text = music.author
+        currentSongImage.image = UIImage(named: music.name.lowercased())
+    }
 }
 
 extension ViewController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let audioUrl = getAudioUrl(musicList[indexPath.row])
-    
-        do{
-            audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
-            audioPlayer.play()
-        }
-        catch{
-            print(error)
+        if musicIndex != indexPath.row {
+            musicIndex = indexPath.row
+            playSong()
         }
     }
 }
