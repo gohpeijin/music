@@ -137,11 +137,12 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         if musicIndex != indexPath.row {
             musicIndex = indexPath.row
             playSong()
         }
+        let defaults = UserDefaults.standard
+        defaults.setValue(musicIndex, forKey: "musicIndex")
     }
 }
 
