@@ -21,6 +21,7 @@ class ViewController: UIViewController {
     var musicIndex = 0 // initial the user didnt download the app before it will display the first song first
     var firstTimeLogin = true // to make sure the user close app background then when they first back the app,and they click play button it will register the music url first because when back the audio url is not declare yet, so first play a function call that register the url will be called
     var timer: Timer! // to display the running audio current time
+    var paused = false
     
     @IBOutlet weak var musicTableView: UITableView!  // display the music list
     @IBOutlet weak var backgroundView: UIView! // display the current song background
@@ -78,6 +79,7 @@ class ViewController: UIViewController {
             }
         }
         else{
+            paused = true
             playPauseButton.setImage(UIImage(named: "play"), for: .normal)
             audioPlayer.pause()
         }
@@ -99,6 +101,7 @@ class ViewController: UIViewController {
     }
     
     func playSong(){
+        paused = false
         firstTimeLogin = false
         let audioUrl = getAudioUrl(musicList[musicIndex])
         
@@ -112,6 +115,10 @@ class ViewController: UIViewController {
         playPauseButton.setImage(UIImage(named: "pause"), for: .normal)
         setCurrentSong() // set the current playing song image,name and authors
         audioPlayer.play()
+        
+        let defaults = UserDefaults.standard // save the index key
+        defaults.setValue(musicIndex, forKey: "musicIndex")
+        
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(getTime), userInfo: nil, repeats: true) // to update the current audio time every second
     }
     
@@ -122,7 +129,8 @@ class ViewController: UIViewController {
         
         songTimer.text = String(format: "%02d:%02d", minutes, seconds)
         
-        if !audioPlayer.isPlaying{
+        // if song is not playing and no pause play the next song
+        if !audioPlayer.isPlaying && !paused{
             playNextSong()
         }
     }
@@ -156,8 +164,6 @@ extension ViewController: UITableViewDelegate{
             musicIndex = indexPath.row
             playSong()
         }
-        let defaults = UserDefaults.standard // save the index key
-        defaults.setValue(musicIndex, forKey: "musicIndex")
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
