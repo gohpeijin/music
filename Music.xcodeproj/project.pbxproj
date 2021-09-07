@@ -40,7 +40,11 @@
 		032C1C2326E6AD650049BCA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		032C1C2D26E6BB130049BCA8 /* MusicTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicTableViewCell.swift; sourceTree = "<group>"; };
 		032C1C2E26E6BB130049BCA8 /* MusicTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MusicTableViewCell.xib; sourceTree = "<group>"; };
-		03B187F026E7FDC000B43E1E /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Main.strings; sourceTree = "<group>"; };
+		03B187F526E8256A00B43E1E /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Main.strings; sourceTree = "<group>"; };
+		03B187F626E8256B00B43E1E /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		03B187F726E8257900B43E1E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		03B187F826E8257900B43E1E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		03B187FA26E8262000B43E1E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +147,7 @@
 				en,
 				Base,
 				ms,
+				"zh-Hans",
 			);
 			mainGroup = 032C1C0B26E6AD4D0049BCA8;
 			productRefGroup = 032C1C1526E6AD4D0049BCA8 /* Products */;
@@ -193,7 +198,9 @@
 			isa = PBXVariantGroup;
 			children = (
 				032C1C1C26E6AD4D0049BCA8 /* Base */,
-				03B187F026E7FDC000B43E1E /* ms */,
+				03B187F526E8256A00B43E1E /* ms */,
+				03B187F726E8257900B43E1E /* zh-Hans */,
+				03B187FA26E8262000B43E1E /* en */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -202,6 +209,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				032C1C2126E6AD650049BCA8 /* Base */,
+				03B187F626E8256B00B43E1E /* ms */,
+				03B187F826E8257900B43E1E /* zh-Hans */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";

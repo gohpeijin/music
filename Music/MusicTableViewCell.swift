@@ -31,8 +31,10 @@ class MusicTableViewCell: UITableViewCell {
         musicName.text = music
         musicAuthor.text = author
         musicImage.image = UIImage(named: music.lowercased())
-        let second = duration % 60 < 10 ? "0" + String(duration % 60) : String(duration % 60)
-        musicDuration.text = "\(duration/60):\(second)"
+        
+        let minutes = duration/60
+        let seconds = duration%60
+        musicDuration.text = String(format: "%02d:%02d", minutes, seconds)
     }
     
     // for register the cell

@@ -1,9 +1,9 @@
 
 /* Class = "UILabel"; text = "Timer:"; ObjectID = "Jwd-M8-Mp2"; */
-"Jwd-M8-Mp2.text" = "Pemasa:";
+"Jwd-M8-Mp2.text" = "Timer:";
 
 /* Class = "UILabel"; text = "Music Player"; ObjectID = "L2o-xe-oCN"; */
-"L2o-xe-oCN.text" = "Pemutar Muzik";
+"L2o-xe-oCN.text" = "Music Player";
 
 /* Class = "UILabel"; text = "Shawn Mendes"; ObjectID = "Z2H-p2-mgh"; */
 "Z2H-p2-mgh.text" = "Shawn Mendes";

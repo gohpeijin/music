@@ -18,13 +18,18 @@ class ViewController: UIViewController {
     
     var musicList: [music] = []
     var audioPlayer = AVAudioPlayer()
-    var musicIndex = 0
-    var firstTimeLogin = true // to make sure the first song only start from beginning of the song, then after that user will pause and play
+    var musicIndex = 0 // initial the user didnt download the app before it will display the first song first
+    var firstTimeLogin = true // to make sure the user close app background then when they first back the app,and they click play button it will register the music url first because when back the audio url is not declare yet, so first play a function call that register the url will be called
+    var timer: Timer! // to display the running audio current time
     
-    @IBOutlet weak var backgroundView: UIView!
-    @IBOutlet weak var musicTableView: UITableView!
-    
+    @IBOutlet weak var musicTableView: UITableView!  // display the music list
+    @IBOutlet weak var backgroundView: UIView! // display the current song background
+    @IBOutlet weak var currentSongAuthor: UILabel!
+    @IBOutlet weak var currentSongName: UILabel!
+    @IBOutlet weak var currentSongImage: UIImageView!
     @IBOutlet weak var playPauseButton: UIButton!
+    
+    @IBOutlet weak var songTimer: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
         someUIchores()
@@ -32,22 +37,14 @@ class ViewController: UIViewController {
         
         musicTableView.register(MusicTableViewCell.nib(), forCellReuseIdentifier: MusicTableViewCell.identifier)
         
-        setCurrentSong()
         musicTableView.dataSource = self
         musicTableView.delegate = self
         
         let defaults = UserDefaults.standard
         if let savedMusicIndex: Int = defaults.integer(forKey: "musicIndex"){
             musicIndex = savedMusicIndex
-            setCurrentSong()
-            let audioUrl = getAudioUrl(musicList[musicIndex])
-
-            do{
-                audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
-            } catch{
-                print(error)
-            }
         }
+        setCurrentSong() // set the current playing song image,name and authors
     }
     
     func createMusicList() -> [music]{
@@ -70,25 +67,15 @@ class ViewController: UIViewController {
         backgroundView.layer.shadowOpacity = 0.8
     }
     
-    func getAudioUrl(_ music: music) -> URL{
-        let audioName = music.name.lowercased()
-        let url = Bundle.main.path(forResource: audioName, ofType: "mp3")
-        
-        return URL(fileURLWithPath: url!)
-    }
-    
-    
     @IBAction func playPauseButtonPressed(_ sender: UIButton) {
         if playPauseButton.currentImage!.isEqual(UIImage(named: "play")){
             playPauseButton.setImage(UIImage(named: "pause"), for: .normal)
-            if firstTimeLogin {
+            if firstTimeLogin { // first register the url and play else just direct play
                 playSong()
-                
             }
             else{
-                audioPlayer.play()
+                audioPlayer.play() // to continue the previous pasued part instead start from beginning
             }
-            
         }
         else{
             playPauseButton.setImage(UIImage(named: "play"), for: .normal)
@@ -97,14 +84,18 @@ class ViewController: UIViewController {
     }
     
     @IBAction func nextSongButtonPressed(_ sender: UIButton) {
-        musicIndex = musicIndex == musicList.count-1  ? 0 : musicIndex + 1
-        playSong()
+        playNextSong()
     }
     
-    
     @IBAction func previousSongPressed(_ sender: UIButton) {
-        musicIndex = musicIndex == 0 ? musicList.count-1 : musicIndex - 1
-        playSong()
+        playPreviousSong()
+    }
+    
+    func getAudioUrl(_ music: music) -> URL{
+        let audioName = music.name.lowercased()
+        let url = Bundle.main.path(forResource: audioName, ofType: "mp3")
+        
+        return URL(fileURLWithPath: url!)
     }
     
     func playSong(){
@@ -113,25 +104,49 @@ class ViewController: UIViewController {
         
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
-            playPauseButton.setImage(UIImage(named: "pause"), for: .normal)
-            setCurrentSong()
-            audioPlayer.play()
         }
         catch{
             print(error)
         }
+        
+        playPauseButton.setImage(UIImage(named: "pause"), for: .normal)
+        setCurrentSong() // set the current playing song image,name and authors
+        audioPlayer.play()
+        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(getTime), userInfo: nil, repeats: true) // to update the current audio time every second
     }
     
-    @IBOutlet weak var currentSongAuthor: UILabel!
-    @IBOutlet weak var currentSongName: UILabel!
-    @IBOutlet weak var currentSongImage: UIImageView!
+    @objc func getTime() {
+        let currentTime = Int(audioPlayer.currentTime)
+        let minutes = currentTime/60
+        let seconds = currentTime%60
+        
+        songTimer.text = String(format: "%02d:%02d", minutes, seconds)
+        
+        if !audioPlayer.isPlaying{
+            playNextSong()
+        }
+    }
     
     func setCurrentSong(){
         let music = musicList[musicIndex]
-        
         currentSongName.text = music.name
         currentSongAuthor.text = music.author
         currentSongImage.image = UIImage(named: music.name.lowercased())
+    }
+    
+    func playNextSong(){
+        musicIndex = musicIndex == musicList.count-1  ? 0 : musicIndex + 1
+        setTableIndexAndPlaySong()
+    }
+    func playPreviousSong(){
+        musicIndex = musicIndex == 0 ? musicList.count-1 : musicIndex - 1
+        setTableIndexAndPlaySong()
+    }
+    
+    func setTableIndexAndPlaySong(){
+        let indexPath = IndexPath(row: musicIndex, section: 0)
+        musicTableView.selectRow(at: indexPath, animated: false, scrollPosition: .middle)
+        playSong()
     }
 }
 
@@ -141,8 +156,15 @@ extension ViewController: UITableViewDelegate{
             musicIndex = indexPath.row
             playSong()
         }
-        let defaults = UserDefaults.standard
+        let defaults = UserDefaults.standard // save the index key
         defaults.setValue(musicIndex, forKey: "musicIndex")
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        // let the previous selected to be shown as selected in tableview
+        if(musicIndex == indexPath.row){
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: .middle)
+        }
     }
 }
 
@@ -152,10 +174,9 @@ extension ViewController: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: MusicTableViewCell.identifier, for: indexPath) as! MusicTableViewCell
-        
         let music = musicList[indexPath.row]
+        // to get the audio duration
         let audioUrl = getAudioUrl(music)
         let asset = AVURLAsset(url: audioUrl)
         let duration = Int(CMTimeGetSeconds(asset.duration))
@@ -163,6 +184,4 @@ extension ViewController: UITableViewDataSource{
 
         return cell
     }
-    
-    
 }
