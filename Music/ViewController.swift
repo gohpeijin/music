@@ -160,6 +160,7 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // to prevent play from start of the playing song when user clicked that row
         if musicIndex != indexPath.row {
             musicIndex = indexPath.row
             playSong()
