@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     var musicIndex = 0 // initial the user didnt download the app before it will display the first song first
     var firstTimeLogin = true // to make sure the user close app background then when they first back the app,and they click play button it will register the music url first because when back the audio url is not declare yet, so first play a function call that register the url will be called
     var timer: Timer! // to display the running audio current time
-    var paused = false
+    var paused = true // beacuse when in the app the music will at stop stage
     
     @IBOutlet weak var musicTableView: UITableView!  // display the music list
     @IBOutlet weak var backgroundView: UIView! // display the current song background
